@@ -1,0 +1,30 @@
+{
+    "name": "phbsis/htr-core",
+    "description": "The base of HTR Framework",
+    "homepage": "https://github.com/br-monteiro/htr-core",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Edson B S Monteiro",
+            "email": "bruno.monteirodg@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.0",
+        "slim/slim": "^3.0",
+        "doctrine/orm": "v2.5.14",
+        "firebase/php-jwt": "v5.0.0",
+        "justinrainbow/json-schema": "5.2.6"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^3.4"
+    },
+    "autoload": {
+        "files": ["src/Functions/common_functions.php"],
+        "psr-4": {
+            "HTR\\" : "src/"
+        }
+    }
+}
