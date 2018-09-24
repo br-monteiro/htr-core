@@ -26,7 +26,7 @@ class EntityAbstract
             return;
         }
 
-        $isDevMode = isDevMode();
+        $isDevMode = cfg::htrFileConfigs()->devmode ?? false;
         $paths = [self::$adjustmentsToPath . cfg::PATH_ENTITIES];
 
         // the connection configuration
