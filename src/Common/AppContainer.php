@@ -1,6 +1,7 @@
 <?php
 namespace HTR\Common;
 
+use App\System\Configuration as cfg;
 use Slim\Container;
 
 /**
@@ -67,7 +68,7 @@ class AppContainer
         };
         // Settings configs
         $c['settings']['addContentLengthHeader'] = false;
-        $c['settings']['displayErrorDetails'] = isDevMode();
+        $c['settings']['displayErrorDetails'] = cfg::htrFileConfigs()->devmode ?? false;
         // 
         return $c;
     }
