@@ -4,6 +4,7 @@ namespace HTR\Init;
 use Slim\App;
 use HTR\Common\AppContainer;
 use App\Routes\Router;
+use HTR\Common\HttpFunctions as fn;
 
 class Bootstrap
 {
@@ -29,6 +30,8 @@ class Bootstrap
      */
     private function setUp(): self
     {
+        fn::allowCors();
+        fn::allowHeader();
         $this->configApp();
         $this->configRoutes();
 

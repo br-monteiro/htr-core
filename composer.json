@@ -22,9 +22,9 @@
         "symfony/var-dumper": "^3.4"
     },
     "autoload": {
-        "files": ["src/Functions/common_functions.php"],
         "psr-4": {
             "HTR\\" : "src/"
         }
-    }
+    },
+    "bin": ["src/bin/processingEntities"]
 }
