@@ -47,7 +47,7 @@ class AbstractModel
             "message" => "Somethings are wrong.",
             "status" => "error"
         ];
-        if (isDevMode()) {
+        if (cfg::htrFileConfigs()->devmode ?? false) {
             $data['dev_error'] = $ex->getMessage();
         }
         return $response->withJson($data, 500);
