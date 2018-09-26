@@ -181,6 +181,8 @@ class AbstractModel
     final public function withoutAttribute($name): self
     {
 
+        // remove attributes when $name is a list (array) of attributes to be removed
+        // remove attributes from root data value
         if (is_array($name)) {
             foreach ($name as $attribute) {
                 if ($this->attributeExists($attribute)) {
@@ -188,8 +190,26 @@ class AbstractModel
                 }
             }
         }
+        // remove attribute from root data value
         if (is_string($name) && $this->attributeExists($name)) {
             unset($this->data->$name);
+        }
+        // remove attributes from elements of data value
+        if (is_array($this->data)) {
+            foreach ($this->data as $value) {
+                // remove just one attribute
+                if (is_string($name) && isset($value->$name)) {
+                    unset($value->$name);
+                }
+                // remove one or more attributes from elements of data value
+                if (is_array($name)) {
+                    foreach ($name as $attribute) {
+                        if (is_string($attribute) && isset($value->$name)) {
+                            unset($value->$attribute);
+                        }
+                    }
+                }
+            }
         }
         return $this;
     }
