@@ -112,7 +112,7 @@ class AbstractModel
     {
         foreach ($elements as $name => $value) {
             try {
-                $obj->$name = $value;
+                $obj->$name = is_callable($value) ? $value($obj) : $value;
             } catch (\Exception $ex) {
                 throw new \Exception("Could not process attribute {$name}");
             }
@@ -133,13 +133,17 @@ class AbstractModel
      */
     final public function withAttribute($name, $value = null, bool $inAllElements = false): self
     {
+        // insert or update one or more attributes into all elements
         if (is_array($this->data) && $inAllElements === true) {
             foreach ($this->data as $element) {
                 if (is_array($name)) {
                     $element = $this->addingAttribute($element, $name);
                     continue;
                 }
-
+                if (!is_array($name) && is_callable($value)) {
+                    $element->$name = $value($element);
+                    continue;
+                }
                 $element->$name = $value;
             }
 
@@ -150,21 +154,23 @@ class AbstractModel
             }
         }
 
+        // insert one or more attributes into Object result
         if (is_array($name)) {
-            foreach ($name as $k => $v) {
+            foreach ($name as $attributeKey => $attributeValue) {
                 if (is_array($this->data)) {
-                    $this->data[$k] = $v;
+                    $this->data[$attributeKey] = is_callable($attributeValue) ? $attributeValue($this->data) : $attributeValue;
                 } else {
-                    $this->data->$k = $v;
+                    $this->data->$attributeKey = is_callable($attributeValue) ? $attributeValue($this->data) : $attributeValue;
                 }
             }
             return $this;
         }
 
+        // insert one attribute into Object result
         if (is_array($this->data)) {
-            $this->data[$name] = $value;
+            $this->data[$name] = is_callable($value) ? $value($this->data) : $value;
         } else {
-            $this->data->$name = $value;
+            $this->data->$name = is_callable($value) ? $value($this->data) : $value;
         }
 
         return $this;
