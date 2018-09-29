@@ -210,7 +210,7 @@ class AbstractModel
                 // remove one or more attributes from elements of data value
                 if (is_array($name)) {
                     foreach ($name as $attribute) {
-                        if (is_string($attribute) && isset($value->$name)) {
+                        if (is_string($attribute) && isset($value->$attribute)) {
                             unset($value->$attribute);
                         }
                     }
