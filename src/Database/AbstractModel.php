@@ -10,6 +10,7 @@ class AbstractModel
 {
 
     private $data;
+    private $rawData;
     private static $that;
 
     /**
@@ -44,9 +45,10 @@ class AbstractModel
     protected static function commonError(Response $response, \Exception $ex): Response
     {
         $data = [
-            "message" => "Somethings are wrong.",
+            "message" => "Somethings are wrong",
             "status" => "error"
         ];
+
         if (cfg::htrFileConfigs()->devmode ?? false) {
             $data['dev_error'] = $ex->getMessage();
         }
@@ -68,7 +70,7 @@ class AbstractModel
             self::$that = new AbstractModel;
         }
 
-        self::$that->setData(result::adapter($data));
+        self::$that->setData(result::adapter($data), $data);
 
         return self::$that;
     }
@@ -93,9 +95,10 @@ class AbstractModel
      * @since 1.0
      * @param type $data
      */
-    private function setData($data)
+    private function setData($data, $rawData)
     {
         $this->data = $data;
+        $this->rawData = $rawData;
     }
 
     /**
@@ -105,14 +108,15 @@ class AbstractModel
      * @since 1.0
      * @param \stdClass $obj
      * @param array $elements
+     * @param int $dataKey
      * @return \stdClass
      * @throws \Exception
      */
-    private function addingAttribute(\stdClass $obj, array $elements)
+    private function addingAttribute(\stdClass $obj, array $elements, int $dataKey)
     {
         foreach ($elements as $name => $value) {
             try {
-                $obj->$name = is_callable($value) ? $value($obj) : $value;
+                $obj->$name = is_callable($value) ? $value($this->rawData[$dataKey]) : $value;
             } catch (\Exception $ex) {
                 throw new \Exception("Could not process attribute {$name}");
             }
@@ -135,13 +139,13 @@ class AbstractModel
     {
         // insert or update one or more attributes into all elements
         if (is_array($this->data) && $inAllElements === true) {
-            foreach ($this->data as $element) {
+            foreach ($this->data as $dataKey => $element) {
                 if (is_array($name)) {
-                    $element = $this->addingAttribute($element, $name);
+                    $element = $this->addingAttribute($element, $name, $dataKey);
                     continue;
                 }
                 if (!is_array($name) && is_callable($value)) {
-                    $element->$name = $value($element);
+                    $element->$name = $value($this->rawData[$dataKey]);
                     continue;
                 }
                 $element->$name = $value;
@@ -154,23 +158,21 @@ class AbstractModel
             }
         }
 
-        // insert one or more attributes into Object result
         if (is_array($name)) {
             foreach ($name as $attributeKey => $attributeValue) {
                 if (is_array($this->data)) {
-                    $this->data[$attributeKey] = is_callable($attributeValue) ? $attributeValue($this->data) : $attributeValue;
+                    $this->data[$attributeKey] = is_callable($attributeValue) ? $attributeValue($this->rawData) : $attributeValue;
                 } else {
-                    $this->data->$attributeKey = is_callable($attributeValue) ? $attributeValue($this->data) : $attributeValue;
+                    $this->data->$attributeKey = is_callable($attributeValue) ? $attributeValue($this->rawData) : $attributeValue;
                 }
             }
             return $this;
         }
 
-        // insert one attribute into Object result
         if (is_array($this->data)) {
-            $this->data[$name] = is_callable($value) ? $value($this->data) : $value;
+            $this->data[$name] = is_callable($value) ? $value($this->rawData) : $value;
         } else {
-            $this->data->$name = is_callable($value) ? $value($this->data) : $value;
+            $this->data->$name = is_callable($value) ? $value($this->rawData) : $value;
         }
 
         return $this;
