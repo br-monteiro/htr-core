@@ -59,11 +59,16 @@ class AppContainer
         // Error 500
         $c['errorHandler'] = function ($c) {
             return function ($request, $response, $exception) use ($c) {
+                $dataError = [
+                    "message" => 'Something went wrong!',
+                    "status" => 'error'
+                ];
+                if (cfg::htrFileConfigs()->devmode ?? false) {
+                    $dataError['error'] = $exception->getMessage();
+                }
                 return $c['response']
                         ->withStatus(500)
-                        ->withJson([
-                            "message" => 'Something went wrong!',
-                            "status" => "error"]);
+                        ->withJson($dataError);
             };
         };
         // Settings configs

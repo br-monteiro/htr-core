@@ -10,6 +10,7 @@ class AbstractModel
 {
 
     private $data;
+    private $rawData;
     private static $that;
 
     /**
@@ -44,10 +45,11 @@ class AbstractModel
     protected static function commonError(Response $response, \Exception $ex): Response
     {
         $data = [
-            "message" => "Somethings are wrong.",
+            "message" => "Somethings are wrong",
             "status" => "error"
         ];
-        if (isDevMode()) {
+
+        if (cfg::htrFileConfigs()->devmode ?? false) {
             $data['dev_error'] = $ex->getMessage();
         }
         return $response->withJson($data, 500);
@@ -68,7 +70,7 @@ class AbstractModel
             self::$that = new AbstractModel;
         }
 
-        self::$that->setData(result::adapter($data));
+        self::$that->setData(result::adapter($data), $data);
 
         return self::$that;
     }
@@ -93,9 +95,10 @@ class AbstractModel
      * @since 1.0
      * @param type $data
      */
-    private function setData($data)
+    private function setData($data, $rawData)
     {
         $this->data = $data;
+        $this->rawData = $rawData;
     }
 
     /**
@@ -105,14 +108,15 @@ class AbstractModel
      * @since 1.0
      * @param \stdClass $obj
      * @param array $elements
+     * @param int $dataKey
      * @return \stdClass
      * @throws \Exception
      */
-    private function addingAttribute(\stdClass $obj, array $elements)
+    private function addingAttribute(\stdClass $obj, array $elements, int $dataKey)
     {
         foreach ($elements as $name => $value) {
             try {
-                $obj->$name = $value;
+                $obj->$name = is_callable($value) ? $value($this->rawData[$dataKey]) : $value;
             } catch (\Exception $ex) {
                 throw new \Exception("Could not process attribute {$name}");
             }
@@ -133,13 +137,17 @@ class AbstractModel
      */
     final public function withAttribute($name, $value = null, bool $inAllElements = false): self
     {
+        // insert or update one or more attributes into all elements
         if (is_array($this->data) && $inAllElements === true) {
-            foreach ($this->data as $element) {
+            foreach ($this->data as $dataKey => $element) {
                 if (is_array($name)) {
-                    $element = $this->addingAttribute($element, $name);
+                    $element = $this->addingAttribute($element, $name, $dataKey);
                     continue;
                 }
-
+                if (!is_array($name) && is_callable($value)) {
+                    $element->$name = $value($this->rawData[$dataKey]);
+                    continue;
+                }
                 $element->$name = $value;
             }
 
@@ -151,20 +159,20 @@ class AbstractModel
         }
 
         if (is_array($name)) {
-            foreach ($name as $k => $v) {
+            foreach ($name as $attributeKey => $attributeValue) {
                 if (is_array($this->data)) {
-                    $this->data[$k] = $v;
+                    $this->data[$attributeKey] = is_callable($attributeValue) ? $attributeValue($this->rawData) : $attributeValue;
                 } else {
-                    $this->data->$k = $v;
+                    $this->data->$attributeKey = is_callable($attributeValue) ? $attributeValue($this->rawData) : $attributeValue;
                 }
             }
             return $this;
         }
 
         if (is_array($this->data)) {
-            $this->data[$name] = $value;
+            $this->data[$name] = is_callable($value) ? $value($this->rawData) : $value;
         } else {
-            $this->data->$name = $value;
+            $this->data->$name = is_callable($value) ? $value($this->rawData) : $value;
         }
 
         return $this;
@@ -181,6 +189,8 @@ class AbstractModel
     final public function withoutAttribute($name): self
     {
 
+        // remove attributes when $name is a list (array) of attributes to be removed
+        // remove attributes from root data value
         if (is_array($name)) {
             foreach ($name as $attribute) {
                 if ($this->attributeExists($attribute)) {
@@ -188,8 +198,26 @@ class AbstractModel
                 }
             }
         }
+        // remove attribute from root data value
         if (is_string($name) && $this->attributeExists($name)) {
             unset($this->data->$name);
+        }
+        // remove attributes from elements of data value
+        if (is_array($this->data)) {
+            foreach ($this->data as $value) {
+                // remove just one attribute
+                if (is_string($name) && isset($value->$name)) {
+                    unset($value->$name);
+                }
+                // remove one or more attributes from elements of data value
+                if (is_array($name)) {
+                    foreach ($name as $attribute) {
+                        if (is_string($attribute) && isset($value->$attribute)) {
+                            unset($value->$attribute);
+                        }
+                    }
+                }
+            }
         }
         return $this;
     }
