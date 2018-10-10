@@ -10,7 +10,7 @@ use Slim\Container;
  * @author Edson B S Monteiro <bruno.monteirodg@gmail.com>
  * @since 1.0
  */
-class AppContainer
+class DefaultContainer
 {
 
     /**

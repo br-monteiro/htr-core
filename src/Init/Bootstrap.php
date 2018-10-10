@@ -2,7 +2,7 @@
 namespace HTR\Init;
 
 use Slim\App;
-use HTR\Common\AppContainer;
+use App\System\AppContainer;
 use App\Routes\Router;
 use HTR\Common\HttpFunctions as fn;
 
