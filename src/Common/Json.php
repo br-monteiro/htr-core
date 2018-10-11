@@ -112,12 +112,12 @@ class Json
      *
      * @author Edson B S Monteiro <bruno.monteirodg@gmail.com>
      * @since 1.0
-     * @param \stdClass $data
+     * @param \stdClass|array $data
      * @param string $fileSchema
      * @return bool
      * @throws \Exception
      */
-    public static function validate(\stdClass $data, string $fileSchema): bool
+    public static function validate($data, string $fileSchema): bool
     {
         /**
          * Throw an \Exception in case if there's no file or is unreadable
