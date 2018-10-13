@@ -28,7 +28,7 @@ class ValidateAuthentication
     {
         $authorization = $request->getHeader('Authorization');
 
-        if (isset($authorization[0])) {
+        if (!isset($authorization[0])) {
             throw new HeaderWithoutAuthorizationException('The request does not contain the Authorization header');
         }
 
