@@ -18,11 +18,11 @@ class AbstractModel
      *
      * @author Edson B S Monteiro <bruno.monteirodg@gmail.com>
      * @since 1.0
-     * @param \stdClass $data
+     * @param \stdClass|array $data
      * @param string $jsonShemaFile
      * @return bool
      */
-    protected static function inputValidate(\stdClass $data, string $jsonShemaFile): bool
+    protected static function inputValidate($data, string $jsonShemaFile): bool
     {
         $jsonSchema = cfg::JSON_SCHEMA . $jsonShemaFile;
 
