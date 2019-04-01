@@ -1,8 +1,6 @@
 <?php
 namespace HTR\Database;
 
-use HTR\Interfaces\Entities\EntityInterface as Entity;
-
 /**
  * This class is used to adapter the results before sending
  */
@@ -14,10 +12,10 @@ class AdapterResults
      *
      * @author Edson B S Monteiro <bruno.monteirodg@gmail.com>
      * @since 1.0
-     * @param Entity $entity
+     * @param mixed $entity
      * @return \stdClass
      */
-    private static function makeObject(Entity $entity)
+    private static function makeObject($entity)
     {
         $methodsGet = get_class_methods($entity);
         $methodsGet = array_filter($methodsGet, function($value) {
