@@ -12,7 +12,6 @@ class EntityAbstract
 {
 
     private static $entityManager;
-    private static $adjustmentsToPath = __DIR__ . '/../../../';
 
     /**
      * Config the Entity Manager of Doctrine
@@ -27,7 +26,7 @@ class EntityAbstract
         }
 
         $isDevMode = cfg::htrFileConfigs()->devmode ?? false;
-        $paths = [self::$adjustmentsToPath . cfg::PATH_ENTITIES];
+        $paths = [cfg::baseDir() . cfg::PATH_ENTITIES];
 
         // the connection configuration
         if ($isDevMode) {

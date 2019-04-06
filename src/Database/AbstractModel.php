@@ -24,7 +24,7 @@ class AbstractModel
      */
     protected static function inputValidate($data, string $jsonShemaFile): bool
     {
-        $jsonSchema = cfg::JSON_SCHEMA . $jsonShemaFile;
+        $jsonSchema = cfg::baseDir() . cfg::JSON_SCHEMA . $jsonShemaFile;
 
         if (Json::validate($data, $jsonSchema)) {
             return true;
@@ -61,7 +61,7 @@ class AbstractModel
      *
      * @author Edson B S Monteiro <bruno.monteirodg@gmail.com>
      * @since 1.0
-     * @param type $data
+     * @param mixed $data
      * @return \App\System\AbstractModel
      */
     protected static function outputValidate($data): AbstractModel
@@ -70,7 +70,8 @@ class AbstractModel
             self::$that = new AbstractModel;
         }
 
-        self::$that->setData(result::adapter($data), $data);
+        self::$that->setData(result::adapter($data));
+        self::$that->setRawData($data);
 
         return self::$that;
     }
@@ -80,7 +81,7 @@ class AbstractModel
      *
      * @author Edson B S Monteiro <bruno.monteirodg@gmail.com>
      * @since 1.0
-     * @param type $name
+     * @param mixed $name
      * @return bool
      */
     protected function attributeExists($name): bool
@@ -93,11 +94,22 @@ class AbstractModel
      *
      * @author Edson B S Monteiro <bruno.monteirodg@gmail.com>
      * @since 1.0
-     * @param type $data
+     * @param mixed $data
      */
     private function setData($data, $rawData)
     {
-        $this->data = $data;
+        $this->rawData = $rawData;
+    }
+
+    /**
+     * Set the results
+     *
+     * @author Edson B S Monteiro <bruno.monteirodg@gmail.com>
+     * @since 1.0
+     * @param mixed $rawData
+     */
+    private function setRawData($rawData)
+    {
         $this->rawData = $rawData;
     }
 
