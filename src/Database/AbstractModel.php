@@ -24,7 +24,8 @@ class AbstractModel
      */
     protected static function inputValidate($data, string $jsonShemaFile): bool
     {
-        $jsonSchema = cfg::baseDir() . cfg::JSON_SCHEMA . $jsonShemaFile;
+        $fullPath = cfg::baseDir() . cfg::JSON_SCHEMA . cfg::DS;
+        $jsonSchema = $fullPath . $jsonShemaFile;
 
         if (Json::validate($data, $jsonSchema)) {
             return true;
