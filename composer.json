@@ -25,6 +25,5 @@
         "psr-4": {
             "HTR\\" : "src/"
         }
-    },
-    "bin": ["src/bin/processingEntities"]
+    }
 }
